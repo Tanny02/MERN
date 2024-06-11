@@ -3,12 +3,15 @@ import dotenv from "dotenv";
 import connectDB from "../connectDB.js";
 import userRouter from "./routes/user.routes.js";
 import authRouter from "./routes/auth.routes.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
+connectDB();
+
 const app = express();
 app.use(express.json());
-connectDB();
+app.use(cookieParser());
 
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
