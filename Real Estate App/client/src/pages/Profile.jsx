@@ -15,6 +15,9 @@ import {
   deleteUserStart,
   deleteUserFailure,
   deleteUserSuccess,
+  signOutStart,
+  signOutFailure,
+  signOutSuccess,
 } from "../redux/user/userSlice.js";
 
 const Profile = () => {
@@ -103,7 +106,20 @@ const Profile = () => {
   };
 
   const signOut = async () => {
-    alert("You've been signed out");
+    try {
+      dispatch(signOutStart());
+      const res = await fetch("/api/auth/signout");
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(signOutFailure(data.message));
+        return;
+      }
+      dispatch(signOutSuccess(data));
+      alert("You've been signed out");
+    } catch (error) {
+      console.log(error);
+      dispatch(signOutFailure(error.message));
+    }
   };
 
   useEffect(() => {
