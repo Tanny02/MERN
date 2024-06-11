@@ -12,6 +12,9 @@ import {
   updateUserStart,
   updateUserSuccess,
   updateUserFailure,
+  deleteUserStart,
+  deleteUserFailure,
+  deleteUserSuccess,
 } from "../redux/user/userSlice.js";
 
 const Profile = () => {
@@ -54,7 +57,6 @@ const Profile = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
-    console.log(formData);
   };
 
   const handleSubmit = async (e) => {
@@ -79,6 +81,29 @@ const Profile = () => {
       console.log(error);
       dispatch(updateUserFailure(error.message));
     }
+  };
+
+  const deleteUser = async () => {
+    try {
+      dispatch(deleteUserStart);
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+      alert("User deleted successfully");
+    } catch (error) {
+      console.log(error);
+      dispatch(deleteUserFailure(error.message));
+    }
+  };
+
+  const signOut = async () => {
+    alert("You've been signed out");
   };
 
   useEffect(() => {
@@ -151,10 +176,16 @@ const Profile = () => {
         <i>{error ? error : ""}</i>
       </p>
       <div className="flex justify-between mt-2">
-        <span className="text-red-700 bg-white p-2 rounded-lg cursor-pointer hover:bg-slate-700 hover:text-white">
+        <span
+          className="text-red-700 bg-white p-2 rounded-lg cursor-pointer hover:bg-slate-700 hover:text-white"
+          onClick={deleteUser}
+        >
           Delete account
         </span>
-        <span className="text-red-700 bg-white p-2 rounded-lg cursor-pointer hover:bg-slate-700 hover:text-white">
+        <span
+          className="text-red-700 bg-white p-2 rounded-lg cursor-pointer hover:bg-slate-700 hover:text-white"
+          onClick={signOut}
+        >
           sign out
         </span>
       </div>
