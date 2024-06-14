@@ -1,5 +1,5 @@
 import Listing from "../models/listing.model.js";
-
+import { errorHandler } from "../utils/error.js";
 export const createListing = async (req, res, next) => {
   try {
     const listing = await Listing.create(req.body);
@@ -10,25 +10,17 @@ export const createListing = async (req, res, next) => {
 };
 
 export const updateListing = async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) {
+    return next(errorHandler(403, "Listing not found"));
+  }
+  if (listing.userRef.toString() !== req.user.id) {
+    return next(errorHandler(403, "Unauthorized"));
+  }
   try {
     const updatedListing = await Listing.findByIdAndUpdate(
       req.params.id,
-      {
-        $set: {
-          imageUrls: req.body.imageUrls,
-          name: req.body.name,
-          description: req.body.description,
-          address: req.body.address,
-          type: req.body.type,
-          bedrooms: req.body.bedrooms,
-          bathrooms: req.body.bathrooms,
-          regularPrice: req.body.regularPrice,
-          discountPrice: req.body.discountPrice,
-          offer: req.body.offer,
-          parking: req.body.parking,
-          furnished: req.body.furnished,
-        },
-      },
+      req.body,
       { new: true }
     );
     res.status(200).json(updatedListing);
@@ -38,6 +30,13 @@ export const updateListing = async (req, res, next) => {
 };
 
 export const deleteListing = async (req, res, next) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) {
+    return next(errorHandler(403, "Listing not found"));
+  }
+  if (req.user.id !== listing.userRef) {
+    return next(errorHandler(403, "Unauthorized"));
+  }
   try {
     await Listing.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "Listing deleted successfully" });

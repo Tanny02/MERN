@@ -34,6 +34,8 @@ const UpdateListing = () => {
   const navigate = useNavigate();
   const params = useParams();
 
+  console.log(formData);
+
   useEffect(() => {
     const fetchListing = async () => {
       const listingId = params.listingId;
